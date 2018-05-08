@@ -1,6 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+#ifndef ARX_EXPORTS
+#ifdef PLATFORM_WINDOWS
+#define ARX_EXPORTS 1
+#endif
+#endif // !ARX_EXPORTS
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"

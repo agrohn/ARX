@@ -5,6 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Tracker2D.generated.h"
+#ifndef ARX_EXPORTS
+#ifdef PLATFORM_WINDOWS
+#define ARX_EXPORTS 1
+#endif
+#endif // !ARX_EXPORTS
 
 
 UCLASS()

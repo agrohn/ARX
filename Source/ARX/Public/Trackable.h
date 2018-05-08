@@ -1,6 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+#ifndef ARX_EXPORTS
+#ifdef PLATFORM_WINDOWS
+#define ARX_EXPORTS 1
+#endif
+#endif // !ARX_EXPORTS
 
 #include "CoreMinimal.h"
 #include <ARX/AR/ar.h>
@@ -12,7 +17,7 @@ class ARX_API Trackable
 {
 public:
   Trackable();
-  ~Trackable();
+  virtual ~Trackable();
   virtual void Update() = 0;
   
   bool visible;
