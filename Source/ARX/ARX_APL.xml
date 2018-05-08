@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Our own additions-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- init section is always evaluated once per architecture -->
+	<init>
+		<!-- currently only support armv7 -->
+		<setBool result="bSupported" value="false"/>
+		<isArch arch="armeabi-v7a">
+			<setBool result="bSupported" value="true"/>
+		</isArch>
+		
+		<if condition="bSupported">
+			<false>
+				<log text="WARNING: this architecture is not supported for ARX"/>
+			</false>
+		</if>
+	</init>
+
+	<!-- optional files or directories to copy to Intermediate/Android/APK -->
+	<resourceCopies>
+		<isArch arch="armeabi-v7a">
+			<copyFile src="$S(PluginDir)/../../ThirdParty/lib/Android/armeabi-v7a/libARX.so"
+				dst="$S(BuildDir)/libs/armeabi-v7a/libARX.so" />
+		</isArch>
+	</resourceCopies>
+</root>

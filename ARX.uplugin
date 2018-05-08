@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "ARX",
+	"Description": "ARX plugin for Unreal Engine",
+	"Category": "Other",
+	"CreatedBy": "anssi.grohn@karelia.fi",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "ARX",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
