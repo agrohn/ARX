@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
+#ifndef M_PI_4 
+#define M_PI_4 0.78539816339744830962
+#endif
 #include "TrackerBase.h"
 
 TrackerBase::TrackerBase()
