@@ -11,6 +11,9 @@ lib/Linux/x86_64-unknown-linux-gnu
 include/Android/armeabi-v7a
 lib/Android/armeabi-v7a
 
+# What to copy
 
+You need every .LIB and .DLL there is in ARToolkitX, put them under lib.
+remember to also copy necessary ones under depends.
 
 
