@@ -37,22 +37,19 @@ protected:
 	virtual void EndPlay( const EEndPlayReason::Type EndPlayReason) override;
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override; 
 		
 public:
 	/* ARToolkit-related member variables */	
 	
 	AR_PIXEL_FORMAT format;
 	
-	AR3DHandle *	ar3Dhandle{nullptr};
-	AR2HandleT *	ar2Handle{nullptr};
-	ARHandle *		arhandle{nullptr};
-	
-	ARPattHandle *arPatternHandle{nullptr};
-	int patternId{-1};
-	  
+
+	AR2HandleT *	handle2d_{nullptr};
 	AR2SurfaceSetT  *surfaceSet[MAX_PAGES]; 
-	TrackableNFT    markersNFT[MAX_PAGES];
+	//TrackableNFT    markersNFT[MAX_PAGES];
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=ARX)
+  TArray<AActor *> trackables_;
   
 	bool markerFound{false};
 	
@@ -70,8 +67,7 @@ public:
     UFUNCTION(BlueprintCallable, Category=AR)
 	bool StartTracking();
 	
-	UFUNCTION(BlueprintCallable, Category=AR)
-	void DetectMarkerSimple();
+
   
 	UFUNCTION(BlueprintCallable, Category=AR)
 	bool DetectMarkerNFT();
@@ -101,17 +97,11 @@ public:
 	bool RequestMarkerData(float transform[3][4], int & page);
 
 	
-	TArray<FColor> Data; ///< For swapping image row order in Android.
+	
 	
 	FUpdateTextureRegion2D* VideoUpdateTextureRegion;
 	FVector2D VideoSize;
 	
-	
-  
-	
-	
-	
-  
 	
 	
 	

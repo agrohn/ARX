@@ -48,11 +48,10 @@ bool ATrackerNFT::LoadMarker()
     if (kpmLoadRefDataSet(TCHAR_TO_UTF8(*path), "fset3", &refDataSet2) < 0 ) 
     {
         UE_LOG(LogTemp, Error, TEXT("Error reading %s.fset3"), *path);
-		return false;
+        return false;
     }
     
     markersNFT[0].pageNo = surfaceSetCount;
-    
     UE_LOG(LogTemp, Log, TEXT("  Assigned page no. %d.\n"), surfaceSetCount);
     // This one replaces one page number with another, or replaces all page 
     // numbers in case KpmChangePageNoAllPages.
@@ -127,11 +126,11 @@ bool ATrackerNFT::StartTracking()
     
     if ( SetupCamera(cameraSize) == false ) return false;
     
-    // Format needs to be set explicitly.
-    format = AR_PIXEL_FORMAT_RGBA; 
+    // pixelFormat_ needs to be set explicitly.
+    pixelFormat_ = AR_PIXEL_PIXELFORMAT_RGBA; 
 		
-    ar2Handle = ar2CreateHandle( cameraParameterLT, format, threadCount) ;
-    if (ar2Handle == nullptr  )
+    handle2d_ = ar2CreateHandle( cameraParameterLT, pixelFormat_, threadCount) ;
+    if (handle2d_ == nullptr  )
     {
         UE_LOG(LogTemp, Error, TEXT("ar2CreateHandle failed"));
 				goto cleanup;
@@ -139,21 +138,21 @@ bool ATrackerNFT::StartTracking()
     
     if (threadCount <= 1) {
         
-        ar2SetTrackingThresh(ar2Handle, 5.0);
-        ar2SetSimThresh(ar2Handle, 0.50);
-        ar2SetSearchFeatureNum(ar2Handle, 16);
-        ar2SetSearchSize(ar2Handle, 6);
-        ar2SetTemplateSize1(ar2Handle, 6);
-        ar2SetTemplateSize2(ar2Handle, 6);
+        ar2SetTrackingThresh(handle2d_, 5.0);
+        ar2SetSimThresh(handle2d_, 0.50);
+        ar2SetSearchFeatureNum(handle2d_, 16);
+        ar2SetSearchSize(handle2d_, 6);
+        ar2SetTemplateSize1(handle2d_, 6);
+        ar2SetTemplateSize2(handle2d_, 6);
     } else {
       
-				// assume capability of executing multiple threads simultanously.
-				ar2SetTrackingThresh(ar2Handle, 5.0);
-				ar2SetSimThresh(ar2Handle, 0.50);
-				ar2SetSearchFeatureNum(ar2Handle, 16);
-				ar2SetSearchSize(ar2Handle, 12);
-				ar2SetTemplateSize1(ar2Handle, 6);
-				ar2SetTemplateSize2(ar2Handle, 6);
+		// assume capability of executing multiple threads simultanously.
+		ar2SetTrackingThresh(handle2d_, 5.0);
+		ar2SetSimThresh(handle2d_, 0.50);
+		ar2SetSearchFeatureNum(handle2d_, 16);
+		ar2SetSearchSize(handle2d_, 12);
+		ar2SetTemplateSize1(handle2d_, 6);
+		ar2SetTemplateSize2(handle2d_, 6);
     }
     initialPatternDetector.Prepare(cameraParameterLT);
     
@@ -163,7 +162,7 @@ bool ATrackerNFT::StartTracking()
     
     Data.Init( FColor(0,0,0,255), VideoSize.X * VideoSize.Y);
     
-#ifdef NFT_MARKER 
+
     // setup NFT stuff
     // Initialize markers
     markersNFT[0] = TrackableNFT();
@@ -172,24 +171,9 @@ bool ATrackerNFT::StartTracking()
     LoadMarker();
     // Start the KPM tracking thread.
     initialPatternDetector.StartThread();
-#endif
 
-    
-#ifdef SIMPLE_MARKER    
-    arPatternHandle = arPattCreateHandle();
-    if ( arPatternHandle == nullptr )
-	{
-		UE_LOG(LogTemp, Error, TEXT("Pattern handle not created"));
-		goto cleanup;
-    }
-    patternId = arPattLoad( arPatternHandle, "/home/entity/downloads/artoolkit5/share/simpleLite/Data/hiro.patt");
-    if ( patternId < 0 )
-    {
-        UE_LOG(LogTemp, Error, TEXT("Cannot load pattern handle"));
-		goto cleanup;
-    }
-    arPattAttach(arhandle, arPatternHandle);
-#endif    
+   
+
     goto end;
 	
  cleanup:	
@@ -223,9 +207,9 @@ void ATrackerNFT::cleanup()
   if ( arPatternHandle != nullptr )  arPattDetach(arhandle);
   arPattDeleteHandle(arPatternHandle);
   arPatternHandle = nullptr;
-  if ( ar3Dhandle != nullptr )
-    ar3DDeleteHandle(&ar3Dhandle);
-  ar3Dhandle = nullptr;
+  if ( handle3d_ != nullptr )
+    ar3DDeleteHandle(&handle3d_);
+  handle3d_ = nullptr;
   if ( arhandle != nullptr )
     arDeleteHandle(arhandle);
   arhandle = nullptr;
@@ -242,89 +226,6 @@ void ATrackerNFT::Tick(float DeltaTime)
 
 }
 
-
-void ATrackerNFT::DetectMarkerSimple()
-{
-  ARdouble patternWidth = 80;
-    ARdouble patternTransform[3][4];
-    
-    //int patternPage;
-    int j,k;
-    
-    
-    if ( GetImage(RenderTargetTexture) )
-    { 
-        
-      
-#if PLATFORM_ANDROID
-      //arglPixelBufferDataUploadBiPlanar(arglSettings, LuminanceBuffer.GetData(), nullptr);
-#else
-      //arglPixelBufferDataUpload(arglSettings, LuminanceBuffer.GetData());
-#endif
-      
-        
-      /*if (arDetectMarker(arhandle, LuminanceBuffer.GetData()) < 0) {
-        UE_LOG(LogTemp, Error, TEXT("This went really bad, detectMarker failed.");
-      }*/
-
-      // Check through the marker_info array for highest confidence
-      // visible marker matching our preferred pattern.
-      k = -1;
-      for (j = 0; j < arhandle->marker_num; j++) {
-        if (arhandle->markerInfo[j].id == patternId) {
-          if (k == -1) 
-            k = j; // First marker detected.
-          else if (arhandle->markerInfo[j].cf > arhandle->markerInfo[k].cf) 
-              k = j; // Higher confidence marker detected.
-           
-           cerr << "TEST:" 
-                << arhandle->markerInfo[j].cf << ", " 
-                << arhandle->markerInfo[k].cf << "\n";
-        }
-      }
-		
-      if (k != -1) {
-          cerr << "Alright, marker detected! \n";
-        // Get the transformation between the marker and the real camera into gPatt_trans.
-        ARdouble err = arGetTransMatSquare(
-                  ar3Dhandle, 
-                  &(arhandle->markerInfo[k]), 
-                  patternWidth, patternTransform);
-        
-        FMatrix tmpMatrix( FVector(patternTransform[0][0], patternTransform[1][0], patternTransform[2][0]),
-                           FVector(patternTransform[0][1], patternTransform[1][1], patternTransform[2][1]),
-                           FVector(patternTransform[0][2], patternTransform[1][2], patternTransform[2][2]),
-                           FVector(patternTransform[0][3], patternTransform[1][3], patternTransform[2][3]));
-        
-        cerr << "Pattern found, err is " << err << "\n";
-        UE_LOG(LogTemp, Warning, TEXT("matrix %s"), *tmpMatrix.ToString());
-        arTransform = FTransform( tmpMatrix);
-        /*UE_LOG(LogTemp, Warning, TEXT("translation: %s"), *tmpMatrix.GetColumn(3).ToString());
-        FRotator rot = tmpMatrix.Rotator();
-        UE_LOG(LogTemp, Warning, TEXT("rotation: %s"), *rot.ToString());
-        UE_LOG(LogTemp, Warning, TEXT("scale: %s"), *tmpMatrix.GetScaleVector(0.1f).ToString());*/
-        /*
-          
-        cerr << "patternTransform: \n" ;
-        
-        for(int r=0;r<3;r++)
-        {
-            cerr << "[" << r << "]: ";
-            for(int c=0;c<4;c++)
-            {
-                cerr << patternTransform[r][c] << " ";
-            }
-            cerr << "\n";
-        }*/
-        
-      } 
-	  else 
-	  {
-		  UE_LOG(LogTemp, Warning, TEXT("Pattern not found"));
-        
-      }
-    }
-}
 
 bool ATrackerNFT::RequestMarkerData(float transform[3][4], int & page)
 {
@@ -392,7 +293,7 @@ ATrackerNFT::DetectMarkerNFT()
             //UE_LOG( LogTemp, Warning, TEXT("Detected page %i"), patternPage );
             
             // extract actual pose, store result back into patternTransform 
-            if ( ar2Tracking( ar2Handle, 
+            if ( ar2Tracking( handle2d_, 
                               surfaceSet[patternPage], 
                               (ARUint8*)ColorBuffer.GetData(), 
                               patternTransform, &errorLevel) < 0 )
