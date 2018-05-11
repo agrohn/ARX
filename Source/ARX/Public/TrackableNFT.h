@@ -17,26 +17,13 @@
 #include <ARX/AR2/tracking.h>
 #include <Trackable.h>
 #include <string>
-
 //////////////////////////////////////////////////////////////////////////////////////
-struct ARPose 
-{
-  ARdouble T[16];
-  inline ARPose() 
-  {
-    for(int i=0;i<16;i++) T[i] = 0.0;
-  }
-};
-
-//////////////////////////////////////////////////////////////////////////////////////
-class TrackableNFT :public Trackable
+class TrackableNFT : public Trackable
 {
 public:
     bool       valid{false};  ///< Used to express validity.
     bool       validPrev{false}; ///<Used to incidate change in validity (in case other stuff relies upon it).
     
-    
-    ARPose     pose; 
     ARdouble   marker_width{0.0};
     ARdouble   marker_height{0.0};
     // ARMarker private
