@@ -55,5 +55,12 @@ public:
   // Called every frame
   virtual void Tick(float DeltaTime) override;
   virtual void Update() override;
+  
+  
+  UFUNCTION(BlueprintNativeEvent)
+  void OnMarkerDetected();
+  
+  UFUNCTION(BlueprintNativeEvent)
+  void OnMarkerLost();
 };
 

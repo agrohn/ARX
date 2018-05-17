@@ -42,3 +42,11 @@ Trackable::MatrixToTransform( ARdouble transformMatrix[3][4], FTransform & trans
     transform = FTransform( rot, pos, FVector(1,1,1));
 
 }
+bool Trackable::HasBecomeVisible() const
+{
+  return (visible == true && visiblePrev == false);
+}
+bool Trackable::HasBecomeInvisible() const
+{
+  return (visible == false && visiblePrev == true);
+}

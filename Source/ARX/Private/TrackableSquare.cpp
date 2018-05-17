@@ -200,7 +200,7 @@ void ATrackableSquare::BeginPlay()
 void ATrackableSquare::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-  
+  // set marker transform so it is available when event is handled.
   if ( visible )
   {
       if ( matchingActor != nullptr )
@@ -212,10 +212,21 @@ void ATrackableSquare::Tick(float DeltaTime)
           matchingActor->SetActorTransform(arTransform,false);
       }
   }
-
+  // launch event handlers
+  if      ( HasBecomeVisible()  )  OnMarkerDetected();
+  else if ( HasBecomeInvisible())  OnMarkerLost();
 }
 
 void ATrackableSquare::Update()
+{
+  
+}
+
+void ATrackableSquare::OnMarkerDetected_Implementation()
+{
+  
+}
+void ATrackableSquare::OnMarkerLost_Implementation()
 {
   
 }

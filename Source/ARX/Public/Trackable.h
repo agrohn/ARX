@@ -24,7 +24,8 @@ public:
   bool visiblePrev;
   ARdouble   trans[3][4];
   ARFilterTransMatInfo *m_ftmi;
-  
+  bool HasBecomeVisible() const;
+  bool HasBecomeInvisible() const;
   
   void MatrixToTransform(ARdouble transformMatrix[3][4], FTransform & transform );
   virtual bool UpdateWithDetectedMarkers(ARMarkerInfo * markerInfo, int markerNum, AR3DHandle *ar3DHandle) = 0;
