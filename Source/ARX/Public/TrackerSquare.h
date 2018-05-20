@@ -12,6 +12,7 @@
 #include <ARX/AR/ar.h>
 #include <TrackerBase.h>
 #include <TrackableSquare.h>
+#include <TickLimiter.h>
 #include "TrackerSquare.generated.h"
 
 UCLASS()
@@ -42,7 +43,7 @@ public:
 protected:
   // Called when the game starts or when spawned
   virtual void BeginPlay() override;
-
+  TickLimiter tickLimiter;
 public:
   virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
   // Called every frame
@@ -55,7 +56,7 @@ public:
   bool StartTracking();
   
   UFUNCTION(BlueprintCallable, Category = ARX)
-  virtual bool Update();
+  virtual bool Update(float deltaTime);
   
   UFUNCTION(BlueprintCallable, Category = ARX)
   void StopTracking();
@@ -63,4 +64,9 @@ public:
   
   UFUNCTION(BlueprintCallable, Category = ARX)
   bool SaveRenderTargetToFile();
+  
+  /// Limit for running update.
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ARX)
+  float tickLimit;
+  
 };

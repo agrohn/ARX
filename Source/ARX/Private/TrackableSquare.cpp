@@ -200,6 +200,7 @@ void ATrackableSquare::BeginPlay()
 void ATrackableSquare::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+  
   // set marker transform so it is available when event is handled.
   if ( visible )
   {

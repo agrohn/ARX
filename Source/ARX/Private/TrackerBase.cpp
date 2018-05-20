@@ -24,7 +24,7 @@ TrackerBase::StartTracking()
 }
 
 bool 
-TrackerBase::Update()
+TrackerBase::Update(float deltaTime)
 {
   return false;
 }

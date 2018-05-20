@@ -29,7 +29,7 @@ public:
   
   virtual void Initialize();
   virtual bool StartTracking();
-  virtual bool Update();
+  virtual bool Update(float deltaTime);
   virtual void StopTracking();
   virtual void Deinitialize();
   

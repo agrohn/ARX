@@ -11,12 +11,15 @@ ATrackerSquare::ATrackerSquare()
 {
   // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
   PrimaryActorTick.bCanEverTick = true;
+  
 }
 
 // Called when the game starts or when spawned
 void ATrackerSquare::BeginPlay()
 {
   Super::BeginPlay();
+  tickLimiter.SetLimit( tickLimit );
+  UE_LOG(LogTemp,Log, TEXT("Setting ATrackerSquare tick limit to %f"),tickLimit);
 }
 
 // Called every frame
@@ -104,8 +107,11 @@ bool ATrackerSquare::StartTracking()
 
 
 }
-bool ATrackerSquare::Update()
+bool ATrackerSquare::Update(float deltaTime)
 {
+  
+  if ( tickLimiter.Update(deltaTime) == false) return true;
+  
   ARMarkerInfo *markerInfo0 = nullptr;
 
   const int VIDEOBUFFER_IS_VALID = 1;
