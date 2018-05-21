@@ -10,6 +10,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Trackable.h>
+#include <TickLimiter.h>
 #include "TrackableSquare.generated.h"
 /**
  * 
@@ -37,7 +38,11 @@ public:
   
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= ARX )
   FString patternFileLocation;
-  
+   
+  TickLimiter tickLimiter;
+  /// Limits matchin actor update interval in seconds.
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ARX)
+  float       tickLimit;
   
   bool m_loaded;
   bool useContPoseEstimation{false};

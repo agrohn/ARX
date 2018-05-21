@@ -16,6 +16,7 @@ ATrackableSquare::ATrackableSquare()
 {
   m_loaded = false;
   PrimaryActorTick.bCanEverTick = true;
+  tickLimit = 0.0f;
 }
 
 ATrackableSquare::~ATrackableSquare()
@@ -193,7 +194,7 @@ ATrackableSquare::LoadPatternFromFile(ARPattHandle *arPattHandle)
 void ATrackableSquare::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	tickLimiter.SetLimit(tickLimit);
 }
 
 // Called every frame
@@ -201,12 +202,13 @@ void ATrackableSquare::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
   
+  bool tickLimitPassed = tickLimiter.Update(DeltaTime);
   // set marker transform so it is available when event is handled.
   if ( visible )
   {
-      if ( matchingActor != nullptr )
+      if ( matchingActor != nullptr && tickLimitPassed )
       {
-        /// \TODO limit this to 5ms or larger? Probably does not need to be set on every frame.
+        
           //UE_LOG(LogTemp, Log, TEXT("Setting actor transform to match marker."));
           MatrixToTransform(trans,arTransform);
           arTransform.SetScale3D(matchingActor->GetActorScale3D());
