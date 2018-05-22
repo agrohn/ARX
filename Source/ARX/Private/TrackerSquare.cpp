@@ -11,7 +11,7 @@ ATrackerSquare::ATrackerSquare()
 {
   // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
   PrimaryActorTick.bCanEverTick = true;
-  
+  parentCameraActor = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -20,6 +20,18 @@ void ATrackerSquare::BeginPlay()
   Super::BeginPlay();
   tickLimiter.SetLimit( tickLimit );
   UE_LOG(LogTemp,Log, TEXT("Setting ATrackerSquare tick limit to %f"),tickLimit);
+  
+  if ( parentCameraActor )
+  {
+    UE_LOG(LogTemp,Log, TEXT("Setting Parent Camera Actor to Trackables"));
+    for (auto it(trackables_.CreateIterator()); it; it++)
+    {
+      ATrackableSquare * square = Cast<ATrackableSquare>(*it);
+      if ( square ) {
+        square->SetParentCameraActor(parentCameraActor);
+      } 
+    }
+  }
 }
 
 // Called every frame

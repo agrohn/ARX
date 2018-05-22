@@ -39,7 +39,9 @@ public:
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=ARX)
   FIntPoint cameraSize;
-
+  /// Which camera provides image to this tracker. Used to position matching actor.
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=ARX)
+  AActor    * parentCameraActor;
 protected:
   // Called when the game starts or when spawned
   virtual void BeginPlay() override;

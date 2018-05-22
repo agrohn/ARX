@@ -212,6 +212,10 @@ void ATrackableSquare::Tick(float DeltaTime)
           //UE_LOG(LogTemp, Log, TEXT("Setting actor transform to match marker."));
           MatrixToTransform(trans,arTransform);
           arTransform.SetScale3D(matchingActor->GetActorScale3D());
+          // If camera is set, set rotation in relation to it.
+          if ( HasParentCameraActor() ) {
+            arTransform = ApplyParentCameraToTransform(arTransform);
+          }
           matchingActor->SetActorTransform(arTransform,false);
       }
   }
@@ -233,3 +237,4 @@ void ATrackableSquare::OnMarkerLost_Implementation()
 {
   
 }
+
