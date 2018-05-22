@@ -2,8 +2,9 @@
 
 
 #include "Trackable.h"
-
-Trackable::Trackable()
+#include <Camera/CameraComponent.h>
+#include <Camera/CameraTypes.h>
+Trackable::Trackable() : parentCameraActor_(nullptr)
 {
 }
 
@@ -42,11 +43,35 @@ Trackable::MatrixToTransform( ARdouble transformMatrix[3][4], FTransform & trans
     transform = FTransform( rot, pos, FVector(1,1,1));
 
 }
+
 bool Trackable::HasBecomeVisible() const
 {
   return (visible == true && visiblePrev == false);
 }
+
 bool Trackable::HasBecomeInvisible() const
 {
   return (visible == false && visiblePrev == true);
+}
+
+void Trackable::SetParentCameraActor(AActor* actor)
+{
+  parentCameraActor_ = actor;
+}
+
+FTransform Trackable::ApplyParentCameraToTransform(const FTransform & InTransform)
+{
+  UCameraComponent * cameraComponent = Cast<UCameraComponent>(parentCameraActor_->GetComponentByClass(UCameraComponent::StaticClass()));
+  if ( cameraComponent ) 
+  {
+    FMinimalViewInfo viewInfo;
+    cameraComponent->GetCameraView(0.0f, viewInfo);
+    FTransform cameraTransform(viewInfo.Rotation, viewInfo.Location, FVector(1,1,1));
+    return  InTransform * cameraTransform;
+  } 
+  else 
+  {
+    UE_LOG( LogTemp, Warning, TEXT("ApplyParentCameraToTransform: Parent camera actor missing, cannot do anything."));
+    return InTransform;
+  }
 }
