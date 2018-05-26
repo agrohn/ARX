@@ -28,7 +28,6 @@ public:
   bool HasBecomeInvisible() const;
   
   void MatrixToTransform(ARdouble transformMatrix[3][4], FTransform & transform );
-  virtual bool UpdateWithDetectedMarkers(ARMarkerInfo * markerInfo, int markerNum, AR3DHandle *ar3DHandle) = 0;
   void SetParentCameraActor( AActor * actor);
   AActor * GetTrackerCameraActor();
   
