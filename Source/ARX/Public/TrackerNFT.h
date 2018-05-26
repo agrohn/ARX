@@ -16,10 +16,11 @@
 #include <TrackableNFT.h>
 #include <TrackerKPM.h>
 #include <TrackerBase.h>
+#include <TickLimiter.h>
 #include "TrackerNFT.generated.h"
 
 
-const int MAX_PAGES = 1;
+const int MAX_PAGES = 64;
 
 UCLASS()
 class ARX_API ATrackerNFT : public AActor,
@@ -45,68 +46,56 @@ public:
 	AR_PIXEL_FORMAT format;
 	
 
-	AR2HandleT *	handle2d_{nullptr};
+	AR2HandleT *	    handle2d_{nullptr};
 	AR2SurfaceSetT  *surfaceSet[MAX_PAGES]; 
-	//TrackableNFT    markersNFT[MAX_PAGES];
+	
+  UTrackerKPM initialOrientationDetector;
+  bool shouldSeekInitialOrientation{true};
+  
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=ARX)
   TArray<AActor *> trackables_;
   
-	bool markerFound{false};
-	
-	UTrackerKPM initialPatternDetector;
-	 /** Camera image size to be used for proper perspective mapping. */
+ /** Camera image size to be used for proper perspective mapping. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=ARX)
 	FIntPoint cameraSize;
 
 protected:
 	
 	void cleanup();
-	
+	 TickLimiter tickLimiter;
 public:	
 
-    UFUNCTION(BlueprintCallable, Category=AR)
+  ATrackableNFT * FindTrackableByMarkerIndex( int markerIndex);
+
+  UFUNCTION(BlueprintCallable, Category=ARX)
 	bool StartTracking();
-	
-
   
-	UFUNCTION(BlueprintCallable, Category=AR)
-	bool DetectMarkerNFT();
-  
-	UPROPERTY(BlueprintReadOnly, Category=AR)
-	FTransform arTransform;
-	
-	/** NFT marker name to use.  */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=AR)
-	FString nftMarkerName;
-	
-
-	
-	UPROPERTY(BlueprintReadOnly, Category=AR)
-	UTexture2D* VideoTexture;
+	UFUNCTION(BlueprintCallable, Category = ARX)
+  void Initialize();
   
 	/** For optimization, how many threads are utilized in marker detection. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category=AR)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category=ARX)
 	int threadCount;
 	
 	/** Render target texture for where camera view is displayed. */ 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = AR )
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = ARX )
 	UTextureRenderTarget2D* RenderTargetTexture;
   
-	bool LoadMarker();
+	bool LoadMarkers();
 	void UnloadMarkers();
 	bool RequestMarkerData(float transform[3][4], int & page);
 
+	UFUNCTION(BlueprintCallable,Category = ARX)
+  bool Update(float deltaTime);
 	
-	
-	
-	FUpdateTextureRegion2D* VideoUpdateTextureRegion;
-	FVector2D VideoSize;
-	
-	
-	
-	
+
 	bool imageSaved{false};
-	UFUNCTION(BlueprintCallable, Category=AR)
+	UFUNCTION(BlueprintCallable, Category=ARX)
 	bool SaveRenderTargetToFile();
+  
+   /// Limit for running update.
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ARX)
+  float tickLimit;
+  
 };
 
