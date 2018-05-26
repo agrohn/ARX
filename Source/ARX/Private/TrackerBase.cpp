@@ -151,3 +151,15 @@ TrackerBase::Luminance( FColor & color )
   // CCIR_601 
   return uint8(color.R*0.299f+color.G*0.587f+color.B*0.114f);
 }
+
+void TrackerBase::TearDownCamera()
+{
+  
+  if ( handle3d_ != nullptr )
+    ar3DDeleteHandle(&handle3d_);
+  handle3d_ = nullptr;
+  
+  if ( handle_ != nullptr )
+    arDeleteHandle(handle_);
+  handle_ = nullptr;
+}

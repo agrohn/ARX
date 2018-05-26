@@ -41,6 +41,7 @@ public:
   AR3DHandle *handle3d_{nullptr};
   
   bool SetupCamera(FIntPoint cameraSize);
+  void TearDownCamera();
   
   TArray<FColor> ColorBuffer;
 	TArray<uint8> LuminanceBuffer;
