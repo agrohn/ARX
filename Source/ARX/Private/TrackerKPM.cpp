@@ -17,6 +17,7 @@ UTrackerKPM::Prepare(ARParamLT *arParamLT )
    
     imageSize = kpmHandleGetXSize(kpmHandle) * kpmHandleGetYSize(kpmHandle);
     
+    
     UE_LOG(LogTemp, Log, TEXT("KpmMarkerDetector: image size  %d %d"), kpmHandleGetXSize(kpmHandle),kpmHandleGetYSize(kpmHandle));
     imageLumaPtr  = new ARUint8[imageSize];
     return true;
@@ -65,7 +66,11 @@ UTrackerKPM::StopThread()
 bool
 UTrackerKPM::Init()
 {
-
+  if (kpmSetRefDataSet(kpmHandle, kpmDataset) < 0) {
+    UE_LOG(LogTemp, Error, TEXT("Merging of kpmSetRefDataSet"));
+    return false;
+  }
+  kpmDeleteRefDataSet(&kpmDataset);
   return true;
 }
 void
@@ -157,4 +162,34 @@ UTrackerKPM::Run()
     }
     UE_LOG(LogTemp, Log, TEXT("Kpm Detection Thread exiting..."));
     return 0;
+}
+
+bool UTrackerKPM::Load(const FString & path)
+{
+  
+  KpmRefDataSet *tmpDataset = nullptr;
+  
+  UE_LOG(LogTemp, Log, TEXT("Reading %s.fset3"), *path);
+  // Load data   
+  if (kpmLoadRefDataSet(TCHAR_TO_UTF8(*path), "fset3", &tmpDataset) < 0 ) 
+  {
+    UE_LOG(LogTemp, Error, TEXT("Error reading %s.fset3"), *path);
+    return false;
+  }
+  
+  // This one replaces one page number with another, or replaces all page 
+  // numbers in case KpmChangePageNoAllPages.
+  if (kpmChangePageNoOfRefDataSet(tmpDataset, KpmChangePageNoAllPages, numPages) < 0) 
+  {
+    UE_LOG(LogTemp, Error, TEXT("kpmChangePageNoOfRefDataSet"));
+    return false;
+  }
+  // merge loaded data into a single dataset
+  if (kpmMergeRefDataSet(&kpmDataset, &tmpDataset) < 0) {
+    UE_LOG(LogTemp, Error, TEXT("kpmMergeRefDataSet"));
+    return false;
+  }
+  // increase number of loaded pages
+  numPages++;
+  return true;
 }

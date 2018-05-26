@@ -1,5 +1,4 @@
-#ifndef UKPMMARKERDETECTOR_H
-#define UKPMMARKERDETECTOR_H
+#pragma once
 #ifndef ARX_EXPORTS
 #ifdef PLATFORM_WINDOWS
 #define ARX_EXPORTS 1
@@ -23,13 +22,19 @@
 /* Performs first feature detection for NFT marker. */
 class  UTrackerKPM : public FRunnable
 {
-	
+private:
+  
 public:
     // KPM-related data.
-    KpmHandle              *kpmHandle;      
+    KpmHandle              *kpmHandle{nullptr};      
     // Pointer to image being tracked.
-    ARUint8                *imageLumaPtr;
-
+    ARUint8                *imageLumaPtr{nullptr};
+    
+    /// Data set for all pages that will be tracked.
+    KpmRefDataSet *         kpmDataset{nullptr};
+    // Number of pages loaded.
+    int                     numPages;
+    
     FCriticalSection        imageMutex_;
     // Bytes per image.
     int                     imageSize;      
@@ -38,8 +43,8 @@ public:
     // Assigned page number of tracked image.
     int                     page;           
     
-    FEvent *                 found_{nullptr};
-    FEvent *                 seek_{nullptr};
+    FEvent *                found_{nullptr};
+    FEvent *                seek_{nullptr};
     // Runnable-related events.
     virtual bool    Init() override;
     virtual uint32  Run() override;
@@ -51,18 +56,11 @@ public:
     bool              threadRunning{true}; 
     // Running thread
     FRunnableThread * Thread{nullptr};
-    bool                    Prepare(ARParamLT *ptr);
-    void SeekInitialMarker( uint8 *image );
     
-};	
-/*
-struct MySize 
-{
-        int X;
-        int Y;
+    bool Prepare(ARParamLT *ptr);
+    void SeekInitialMarker( uint8 *image );
+    bool Load( const FString & path );
+    
+    
 };
- */
 
-
-
-#endif // UKPMMARKERDETECTOR_H
