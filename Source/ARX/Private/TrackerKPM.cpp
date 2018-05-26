@@ -11,7 +11,7 @@ UTrackerKPM::Prepare(ARParamLT *arParamLT )
     
     if ( kpmHandle == nullptr )
     {
-			UE_LOG(LogTemp, Error, TEXT("kpmCreateHandle"));
+			UE_LOG(LogTemp, Error, TEXT("kpmCreateHandle failed"));
 			return false;
     }
    
@@ -29,8 +29,6 @@ UTrackerKPM::SeekInitialMarker( uint8 * image )
   
   if ( imageMutex_.TryLock()  )
   {    
-    UE_LOG(LogTemp, Log, TEXT("Copying image data in SeekInitialMarker "));
-    
     // copy image to be handled
     FMemory::Memcpy( imageLumaPtr, image, imageSize );
     // wake up thread
@@ -115,7 +113,7 @@ UTrackerKPM::Run()
                 continue;
             }
             
-            UE_LOG(LogTemp, Log, TEXT("KpmMarkerDetector running "));
+            
             kpmMatching(kpmHandle, imageLumaPtr);
             
             foundResult = false;
@@ -125,9 +123,7 @@ UTrackerKPM::Run()
                  
                 // skip if no proper result.
                 if( kpmResult[i].camPoseF != 0 ) continue;
-                
-                //ARLOGd("kpmGetPose OK.\n");
-                 UE_LOG(LogTemp, Log, TEXT("KpmGetPose OK "));
+                 
                 // Take the first or best result.
                 if( foundResult == false || kpmResult[i].error < errorAmount   ) 
                 { 
@@ -147,16 +143,10 @@ UTrackerKPM::Run()
             
             if ( foundResult ) 
             {
-              UE_LOG(LogTemp, Log, TEXT("Kpm found result!"));
               // mark result available 
               found_->Trigger();
             }
-            else 
-            {
-              UE_LOG(LogTemp, Log, TEXT("Kpm Did not found any result yet..."));
-                
-              // this is needed so the new data gets updated.
-            }
+            
             imageMutex_.Unlock();
          }
     }

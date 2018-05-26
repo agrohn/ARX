@@ -101,7 +101,7 @@ void ATrackerNFT::BeginPlay()
 
 void ATrackerNFT::Initialize()
 {
-  UE_LOG(LogTemp, Log, TEXT("We have trackables: %d"),trackables_.Num());
+  UE_LOG(LogTemp, Log, TEXT("We have #trackables: %d"),trackables_.Num());
   LoadMarkers();
   
   // prepare our camera 
@@ -212,7 +212,7 @@ bool ATrackerNFT::RequestMarkerData(float transform[3][4], int & page)
   // previously found available.
    
   bool markerFound = false;
-  UE_LOG(LogTemp, Log, TEXT("Seeking initial marker... %d"), LuminanceBuffer.Num());
+  //UE_LOG(LogTemp, Log, TEXT("Seeking initial marker... %d"), LuminanceBuffer.Num());
     
   initialOrientationDetector.SeekInitialMarker(LuminanceBuffer.GetData());
     
@@ -244,10 +244,6 @@ ATrackerNFT::FindTrackableByMarkerIndex( int markerIndex)
     if ( nft ) 
     { 
       if (nft->markerIndex == markerIndex)  return nft;
-      else 
-      {
-        UE_LOG(LogTemp, Warning, TEXT("MarkerIndex won't match %d vs. %d"), nft->markerIndex, markerIndex);  
-      }
     }
     else UE_LOG(LogTemp, Warning, TEXT("Not ATrackableNFT in trackables!"));
   }
@@ -267,9 +263,6 @@ ATrackerNFT::Update(float deltaTime)
     // fix this to get it from Android camera
     if ( GetImage(RenderTargetTexture) )
     { 
-      
-      UE_LOG( LogTemp, Log, TEXT("We have image") );
-      
       if ( shouldSeekInitialOrientation ) 
       {
         bool foundMarker = RequestMarkerData(markerTransform, whichMarker);
@@ -284,9 +277,9 @@ ATrackerNFT::Update(float deltaTime)
             {
               nft->SetInitialTransform( markerTransform );    
             }
-            else UE_LOG(LogTemp, Warning, TEXT("Marker %d already tracked continously."), whichMarker);
+            //else UE_LOG(LogTemp, Warning, TEXT("Marker %d already tracked continously."), whichMarker);
           }
-          else UE_LOG(LogTemp, Warning, TEXT("No trackable was found for marker %d."), whichMarker);
+          else UE_LOG(LogTemp, Error, TEXT("No trackable was found for marker %d."), whichMarker);
         }
       }
       // jonna jonna

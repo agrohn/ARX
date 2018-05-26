@@ -66,14 +66,14 @@ ATrackableNFT::UpdateWithDetectedMarkers(AR2HandleT * handle, TArray<FColor> & C
                             patternTransform, &errorLevel) < 0 )
   {
     
-    UE_LOG( LogTemp, Warning, TEXT("Tracking lost") );
+    //UE_LOG( LogTemp, Warning, TEXT("Tracking lost") );
 
     visible = false;
     
   }
   else 
   {
-    UE_LOG(LogTemp, Log, TEXT("Marker %d matches"), markerIndex);
+    //UE_LOG(LogTemp, Log, TEXT("Marker %d matches"), markerIndex);
     visible = true;
     // set validity and copy pose into marker structure.
 
