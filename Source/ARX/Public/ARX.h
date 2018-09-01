@@ -5,12 +5,6 @@
 #include "CoreMinimal.h"
 #include "ModuleManager.h"
 
-
-#if PLATFORM_ANDROID
-// Enable platform-specific flag for ARtoolkit5
-//#define TARGET_PLATFORM_ANDROID 1
-#endif
-
 class FARXModule : public IModuleInterface
 {
 public:
