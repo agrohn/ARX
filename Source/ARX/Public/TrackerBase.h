@@ -6,7 +6,7 @@
 #define ARX_EXPORTS 1
 #endif
 #endif // !ARX_EXPORTS
-
+#include "Definitions.h"
 #include "CoreMinimal.h"
 #include <ARX/AR/ar.h>
 #include <Trackable.h>
@@ -22,10 +22,6 @@ protected:
   TrackerBase();
 public:
   virtual ~TrackerBase();
-  
-  
-  
-  
   
   virtual void Initialize();
   virtual bool StartTracking();

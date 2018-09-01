@@ -6,7 +6,7 @@
 #define ARX_EXPORTS 1
 #endif
 #endif // !ARX_EXPORTS
-
+#include "Definitions.h"
 #include "CoreMinimal.h"
 #include <ARX/AR/ar.h>
 #include <ARX/AR/arFilterTransMat.h>
@@ -33,6 +33,8 @@ public:
   
   bool HasParentCameraActor() const;
   FTransform ApplyParentCameraToTransform( const FTransform & InTransform );
+  
+  virtual FTransform GetOffset() const;
 protected:
   AActor * parentCameraActor_;
 
