@@ -55,6 +55,9 @@ public:
     AActor * matchingActor; 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=ARX)
     FTransform    arTransform;
+    /** Offset for matching actor over the marker. */ 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=ARX)
+    FTransform    offset;
     
     /// This connects data to KPM detection.
     int        			 markerIndex{0}; 
@@ -72,6 +75,7 @@ public:
   
     UFUNCTION(BlueprintNativeEvent)
     void OnMarkerLost();
+    virtual FTransform GetOffset() const override;
     
 };
 //////////////////////////////////////////////////////////////////////////////////////
