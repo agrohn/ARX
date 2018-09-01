@@ -105,8 +105,8 @@ void ATrackableNFT::Tick(float DeltaTime)
       {
         
           //UE_LOG(LogTemp, Log, TEXT("Setting actor transform to match marker."));
+          //arUtilPrintTransMat(trans);
           MatrixToTransform(trans,arTransform);
-          arTransform.SetScale3D(matchingActor->GetActorScale3D());
           // If camera is set, set rotation in relation to it.
           if ( HasParentCameraActor() ) {
             arTransform = ApplyParentCameraToTransform(arTransform);
@@ -141,4 +141,9 @@ void ATrackableNFT::BeginPlay()
 
 void ATrackableNFT::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+}
+
+FTransform ATrackableNFT::GetOffset() const 
+{
+    return offset;
 }
