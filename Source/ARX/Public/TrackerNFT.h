@@ -80,10 +80,13 @@ public:
 	/** Render target texture for where camera view is displayed. */ 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = ARX )
 	UTextureRenderTarget2D* RenderTargetTexture;
+   /// Which camera provides image to this tracker. Used to position matching actor.
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=ARX)
+  AActor    * parentCameraActor;
   
 	bool LoadMarkers();
 	void UnloadMarkers();
-	bool RequestMarkerData(float transform[3][4], int & page);
+	bool RequestMarkerData();
 
 	UFUNCTION(BlueprintCallable,Category = ARX)
   bool Update(float deltaTime);

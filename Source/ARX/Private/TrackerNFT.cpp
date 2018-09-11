@@ -35,14 +35,22 @@ bool ATrackerNFT::LoadMarkers()
 #endif    
   
   int markerCount=0;
-  
+  int processed = 0;
   for (auto it(trackables_.CreateIterator()); it; it++)
   {
+    processed++;
     ATrackableNFT * nft = Cast<ATrackableNFT>(*it);
+    
     if ( nft ) 
     {
       // Actual data file 
       FString path = pathPrefix;
+      if ( nft->datasetPath.TrimStartAndEnd().Len() == 0 )
+      {
+          UE_LOG(LogTemp, Error, TEXT("NFT Trackable at index %d has no Dataset Path set!"), processed-1);
+          continue;
+      }
+      
       path.Append(nft->datasetPath);
 
       // Load KPM tracker 
@@ -52,7 +60,14 @@ bool ATrackerNFT::LoadMarkers()
       // Load AR2 data.
       nft->Load(path);
       nft->markerIndex = markerCount++;
+      if ( parentCameraActor != nullptr )
+        nft->SetParentCameraActor(parentCameraActor);
+      
     } 
+    else 
+    {
+      UE_LOG(LogTemp, Error, TEXT("Actor at index %d is not of NFT Trackable type!"), processed-1);
+    }
   }
   
   return true;
@@ -111,7 +126,7 @@ void ATrackerNFT::Initialize()
 bool ATrackerNFT::StartTracking()
 {
     // pixelFormat_ needs to be set explicitly.
-    pixelFormat_ = AR_PIXEL_FORMAT_RGBA; 
+    pixelFormat_ = AR_PIXEL_FORMAT_MONO; 
 		
     handle2d_ = ar2CreateHandle( cameraParameterLT, pixelFormat_, threadCount) ;
     if (handle2d_ == nullptr  )
@@ -149,7 +164,7 @@ bool ATrackerNFT::StartTracking()
       ATrackableNFT * nft = Cast<ATrackableNFT>(*it);
       if ( nft ) 
       {
-        nft->Initialize(15.0f);
+          nft->Initialize();
       }
     }
     
@@ -206,7 +221,7 @@ void ATrackerNFT::Tick(float DeltaTime)
 }
 
 
-bool ATrackerNFT::RequestMarkerData(float transform[3][4], int & page)
+bool ATrackerNFT::RequestMarkerData()
 {
   // updates marker data if necessary (marker lost), otherwise marks 
   // previously found available.
@@ -218,16 +233,6 @@ bool ATrackerNFT::RequestMarkerData(float transform[3][4], int & page)
     
   if ( initialOrientationDetector.found_->Wait(10, false) == true )
   {
-      // get current transform and its page number
-      for(int r=0;r<3;r++)
-      {
-        for(int c=0;c<4;c++)
-        {
-          
-           transform[r][c] = initialOrientationDetector.trans[r][c];
-           page = initialOrientationDetector.page;
-        }
-      }
       markerFound = true;
   }
 
@@ -256,44 +261,49 @@ ATrackerNFT::Update(float deltaTime)
     
   if ( tickLimiter.Update(deltaTime) == false) return true;
   
-    float markerTransform[3][4];
-    int whichMarker;
-    
     
     // fix this to get it from Android camera
     if ( GetImage(RenderTargetTexture) )
     { 
       if ( shouldSeekInitialOrientation ) 
       {
-        bool foundMarker = RequestMarkerData(markerTransform, whichMarker);
+        bool foundMarker = RequestMarkerData();
         if ( foundMarker )
         {
           // seek page from all trackables. 
-          ATrackableNFT * nft = FindTrackableByMarkerIndex( whichMarker );
+          ATrackableNFT * nft = FindTrackableByMarkerIndex( initialOrientationDetector.page );
           // if we have trackable, then 
           if ( nft != nullptr )
           {
             if ( nft->IsTrackedContinously() == false) 
             {
-              nft->SetInitialTransform( markerTransform );    
+              nft->SetInitialTransform( initialOrientationDetector.trans );    
             }
-            //else UE_LOG(LogTemp, Warning, TEXT("Marker %d already tracked continously."), whichMarker);
+            //else UE_LOG(LogTemp, Warning, TEXT("Marker %d already tracked continously."), r.page);
           }
-          else UE_LOG(LogTemp, Error, TEXT("No trackable was found for marker %d."), whichMarker);
+          else UE_LOG(LogTemp, Error, TEXT("No trackable was found for marker %d."), initialOrientationDetector.page);
         }
       }
-      // jonna jonna
-      shouldSeekInitialOrientation = false;
-      for (auto it(trackables_.CreateIterator()); it; it++)
-      {
-        ATrackableNFT * nft = Cast<ATrackableNFT>(*it);
-        if ( nft  == nullptr ) continue;
-        shouldSeekInitialOrientation |= !nft->IsTrackedContinously();
-        nft->UpdateWithDetectedMarkers( handle2d_, ColorBuffer, markerTransform);
-      }
-
     }
+    // 
     
+    int numTracked = 0;
+    for (auto it(trackables_.CreateIterator()); it; it++)
+    {
+      ATrackableNFT * nft = Cast<ATrackableNFT>(*it);
+      if ( nft  == nullptr ) continue;
+      if ( nft->IsTrackedContinously() == false) {
+        nft->visible = nft->visiblePrev = false;
+        continue;
+      }
+      
+      if ( nft->UpdateWithDetectedMarkers( handle2d_, LuminanceBuffer) )
+      {
+        numTracked++;
+      }
+    }
+    shouldSeekInitialOrientation = numTracked < trackables_.Num();
+
     return true; 
 
 
