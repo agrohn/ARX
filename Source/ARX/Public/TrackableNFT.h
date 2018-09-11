@@ -27,15 +27,16 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay( const EEndPlayReason::Type EndPlayReason) override;
   TickLimiter tickLimiter;
+  float initialTransform[3][4];
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override; 
   ATrackableNFT();
   virtual ~ATrackableNFT();
-  /// \param fcutoffFrequency  Pose estimate filtering for the preceding marker. By default set to ARToolkit default.
-  void Initialize( float cutoffFrequency = AR_FILTER_TRANS_MAT_CUTOFF_FREQ_DEFAULT);
+  
+  void Initialize();
   void Update() ;
-  void UpdateWithDetectedMarkers(AR2HandleT * handle, TArray<FColor> & ColorBuffer, float patternTransform[3][4]);   
+  bool UpdateWithDetectedMarkers(AR2HandleT * handle, TArray<uint8> & LuminanceBuffer);   
   
   void Load( const FString & path );
   void Unload();
@@ -46,8 +47,13 @@ public:
     
     // ARMarker private
     ARFilterTransMatInfo *ftmi{nullptr};
-    ARdouble   filterCutoffFrequency{0.0};
-    ARdouble   filterSampleRate{0.0};
+    /// Jitter filter cutoff frequency. Set negative for AR_FILTER_TRANS_MAT_CUTOFF_FREQ_DEFAULT.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ARX)
+    float   filterCutoffFrequency{AR_FILTER_TRANS_MAT_CUTOFF_FREQ_DEFAULT};
+    /// Jitter filter sample rate. Set negative for AR_FILTER_TRANS_MAT_SAMPLE_RATE_DEFAULT.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ARX)
+    float   filterSampleRate{AR_FILTER_TRANS_MAT_SAMPLE_RATE_DEFAULT};
+    
     // Actual NFT tracking surface set.
     AR2SurfaceSetT  *surfaceSet; 
     /** Actor that gets placed to marker. */ 
@@ -65,7 +71,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ARX )
     FString      datasetPath;
     
-   
     /// Limits matchin actor update interval in seconds.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ARX)
     float       tickLimit;
