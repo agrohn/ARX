@@ -19,6 +19,17 @@
 #include <ARX/AR/arFilterTransMat.h>
 #include <ARX/AR2/tracking.h>
 #include <ARX/KPM/kpm.h>
+#include <vector>
+/** Tracking result and its relevant data.*/
+struct KPMTrackingResult 
+{
+    // Transform containing pose of tracked image.
+    float                   trans[3][4];    
+    // Assigned page number of tracked image.
+    int                     page{-1};
+    bool                    found{false};
+    float                   error{0.0f};
+};
 /* Performs first feature detection for NFT marker. */
 class  UTrackerKPM : public FRunnable
 {
@@ -37,12 +48,13 @@ public:
     
     FCriticalSection        imageMutex_;
     // Bytes per image.
-    int                     imageSize;      
-    // Transform containing pose of tracked image.
+    int                     imageSize;  
+
+      // Transform containing pose of tracked image.
     float                   trans[3][4];    
     // Assigned page number of tracked image.
-    int                     page;           
-    
+    int                     page;
+        
     FEvent *                found_{nullptr};
     FEvent *                seek_{nullptr};
     // Runnable-related events.

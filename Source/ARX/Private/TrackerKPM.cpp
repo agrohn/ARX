@@ -98,7 +98,7 @@ UTrackerKPM::Run()
     
     kpmGetResult( kpmHandle, &kpmResult, &kpmResultNum );
     UE_LOG(LogTemp, Log, TEXT("KpmMarkerDetector resultnum %d"), kpmResultNum);
-    
+    //foundResults_.assign(kpmResultNum, KPMTrackingResult());
     while ( threadRunning )
     {
 
@@ -119,11 +119,10 @@ UTrackerKPM::Run()
             foundResult = false;
                         
             for( int i = 0; i < kpmResultNum; i++ ) {
-                
-                 
                 // skip if no proper result.
-                if( kpmResult[i].camPoseF != 0 ) continue;
-                 
+                if( kpmResult[i].camPoseF != 0 )  continue;
+                //UE_LOG(LogTemp, Log, TEXT("KPM Found marker %d"), i);
+                
                 // Take the first or best result.
                 if( foundResult == false || kpmResult[i].error < errorAmount   ) 
                 { 
@@ -138,6 +137,8 @@ UTrackerKPM::Run()
                         }
                     }
                     errorAmount = kpmResult[i].error;
+                    
+                    
                 }
             }
             
