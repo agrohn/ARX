@@ -20,13 +20,10 @@ Trackable::MatrixToTransform( ARdouble transformMatrix[3][4], FTransform & trans
     ARdouble transInverted[3][4];
     ARdouble quaternion[4];
     arUtilMatInv(transformMatrix, transInverted);
+    auto & tmp = transInverted; 
+    //FVector pos = FVector(transformMatrix[2][3], -transformMatrix[0][3], transformMatrix[1][3]);
+    FVector pos = FVector(transformMatrix[2][3], transformMatrix[0][3], -transformMatrix[1][3]);
     
-    
-    FVector pos = FVector(transformMatrix[2][3], -transformMatrix[0][3], transformMatrix[1][3]);
-    
-    auto & tmp = transInverted;
-  
-   
     // Extract Head/Yaw, Pitch and Roll from matrix. 
     // UE4 FMatrix rotation conversion seem to compute it differently it some fashion, 
     // and do not provide correct result.
@@ -45,10 +42,12 @@ Trackable::MatrixToTransform( ARdouble transformMatrix[3][4], FTransform & trans
     
     //Construct proper rotation for UE coordinates
     FRotator rot;
-    rot.Yaw = FMath::RadiansToDegrees(h);
-    rot.Pitch = FMath::RadiansToDegrees(p);
-    // ARToolkitX provides matrix in right-handed coordinate system, we need to flip roll value. 
+    
+    rot.Yaw = -FMath::RadiansToDegrees(h);
+    rot.Pitch = -FMath::RadiansToDegrees(p);
     rot.Roll = -FMath::RadiansToDegrees(r);
+    
+    
     
     //UE_LOG(LogTemp, Warning, TEXT("Final rotator: %s"),*rot.ToString());
     transform = GetOffset();
